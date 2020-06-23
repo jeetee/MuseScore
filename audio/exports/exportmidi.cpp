@@ -439,6 +439,18 @@ void ExportMidi::PauseMap::calculate(const Score* s)
                               }
                         }
                   }
+            //xxxJT -> insert section pause here if required.
+            if (rs->pause > 0.0) {
+                  auto it = ee;
+                  --it;
+                  int utick = it->first + tickOffset;
+                  Fraction timeSig(sigmap->timesig(it->first).timesig());
+                  qreal quarterNotesPerMeasure = (4.0 * timeSig.numerator()) / timeSig.denominator();
+                  int ticksPerMeasure = quarterNotesPerMeasure * MScore::division; // store a full measure of ticks to keep barlines in same places
+                  tempomapWithPauses->setTempo(this->addPauseTicks(utick), quarterNotesPerMeasure / rs->pause); // new tempo for pause
+                  this->insert(std::pair<const int, int> (utick, ticksPerMeasure + this->offsetAtUTick(utick))); // store running total of extra ticks
+                  tempomapWithPauses->setTempo(this->addPauseTicks(utick), it->second.tempo); // restore previous tempo
+                  }
             }
       }
 
