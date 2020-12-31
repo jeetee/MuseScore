@@ -16,6 +16,14 @@
 namespace Ms {
 
 //---------------------------------------------------------
+//   TempoType : used bitwise masking operations
+//---------------------------------------------------------
+inline TempoType operator ~(TempoType tempoType)
+      {
+      return static_cast<TempoType>(~(static_cast<std::underlying_type<TempoType>::type>(tempoType)));
+      }
+
+//---------------------------------------------------------
 //   TEvent
 //---------------------------------------------------------
 
@@ -105,7 +113,7 @@ void TempoMap::normalize()
       for (auto e = begin(); e != end(); ++e) {
             // entries that represent a pause *only* (not tempo change also)
             // need to be corrected to continue previous tempo
-            if (!(e->second.type & (TempoType::FIX|TempoType::RAMP)))
+            if (!(e->second.type & ~(TempoType::PAUSE)))
                   e->second.tempo = tempo;
             int delta = e->first - tick;
             time += qreal(delta) / (MScore::division * tempo * _relTempo);
