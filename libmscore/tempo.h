@@ -17,7 +17,7 @@ namespace Ms {
 
 class XmlWriter;
 
-enum class TempoType : char { INVALID = 0x0, PAUSE = 0x1, FIX = 0x2, RAMP = 0x4};
+enum class TempoType : char { INVALID = 0x0, PAUSE = 0x1, FIX = 0x2 };
 
 typedef QFlags<TempoType> TempoTypes;
 Q_DECLARE_OPERATORS_FOR_FLAGS(TempoTypes);
