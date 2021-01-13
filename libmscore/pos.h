@@ -105,35 +105,6 @@ class Pos {
       void setInvalid()  { _valid = false; }
       };
 
-//---------------------------------------------------------
-//   PosLen
-//---------------------------------------------------------
-
-class PosLen : public Pos {
-      mutable unsigned _lenTick;
-      mutable unsigned _lenFrame;
-      mutable int sn;
-
-   public:
-      PosLen(TempoMap*, TimeSigMap*);
-      PosLen(const PosLen&);
-      void dump(int n = 0) const;
-
-      void write(XmlWriter&, const char*) const;
-      void read(XmlReader&);
-      void setLenTick(unsigned);
-      void setLenFrame(unsigned);
-      unsigned lenTick() const;
-      unsigned lenFrame() const;
-      Pos end() const;
-      unsigned endTick() const    { return end().tick(); }
-      unsigned endFrame() const   { return end().frame(); }
-      void setPos(const Pos&);
-
-      bool operator==(const PosLen& s) const;
-      };
-
-
 }     // namespace Ms
 #endif
 
