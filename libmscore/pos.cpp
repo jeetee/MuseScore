@@ -337,42 +337,8 @@ void Pos::read(XmlReader& e)
       }
 
 //---------------------------------------------------------
-//   PosLen
-//---------------------------------------------------------
-
-PosLen::PosLen(TempoMap* tl, TimeSigMap* sl)
-   : Pos(tl, sl)
-      {
-      _lenTick  = 0;
-      _lenFrame = 0;
-      sn        = -1;
-      }
-
-PosLen::PosLen(const PosLen& p)
-  : Pos(p)
-      {
-      _lenTick  = p._lenTick;
-      _lenFrame = p._lenFrame;
-      sn = -1;
-      }
-
-//---------------------------------------------------------
 //   dump
 //---------------------------------------------------------
-
-void PosLen::dump(int n) const
-      {
-      Pos::dump(n);
-      qDebug("  Len(");
-      switch(type()) {
-            case TType::FRAMES:
-                  qDebug("samples=%d)", _lenFrame);
-                  break;
-            case TType::TICKS:
-                  qDebug("ticks=%d)", _lenTick);
-                  break;
-            }
-      }
 
 void Pos::dump(int /*n*/) const
       {
@@ -385,137 +351,6 @@ void Pos::dump(int /*n*/) const
                   qDebug("ticks=%d)", _tick);
                   break;
             }
-      }
-
-//---------------------------------------------------------
-//   write
-//---------------------------------------------------------
-
-void PosLen::write(XmlWriter& xml, const char* name) const
-      {
-      if (type() == TType::TICKS)
-            xml.tagE(QString("%1 tick=\"%2\" len=\"%3\"").arg(name).arg(tick()).arg(_lenTick));
-      else
-            xml.tagE(QString("%1 sample=\"%2\" len=\"%3\"").arg(name).arg(frame()).arg(_lenFrame));
-      }
-
-//---------------------------------------------------------
-//   read
-//---------------------------------------------------------
-
-void PosLen::read(XmlReader& e)
-      {
-      if (e.hasAttribute("tick")) {
-            setType(TType::TICKS);
-            setTick(e.intAttribute("tick"));
-            }
-      if (e.hasAttribute("sample")) {
-            setType(TType::FRAMES);
-            setFrame(e.intAttribute("sample"));
-            }
-      if (e.hasAttribute("len")) {
-            int n = e.intAttribute("len");
-            if (type() == TType::TICKS)
-                  setLenTick(n);
-            else
-                  setLenFrame(n);
-            }
-      }
-
-//---------------------------------------------------------
-//   setLenTick
-//---------------------------------------------------------
-
-void PosLen::setLenTick(unsigned len)
-      {
-      _lenTick = len;
-      sn       = -1;
-      if (type() == TType::FRAMES)
-            _lenFrame = tempo->tick2time(len, &sn) * MScore::sampleRate;
-      else
-            _lenTick = len;
-      }
-
-//---------------------------------------------------------
-//   setLenFrame
-//---------------------------------------------------------
-
-void PosLen::setLenFrame(unsigned len)
-      {
-      sn      = -1;
-      if (type() == TType::TICKS)
-            _lenTick = tempo->time2tick(len/MScore::sampleRate, &sn);
-      else
-            _lenFrame = len;
-      }
-
-//---------------------------------------------------------
-//   lenTick
-//---------------------------------------------------------
-
-unsigned PosLen::lenTick() const
-      {
-      if (type() == TType::FRAMES)
-            _lenTick = tempo->time2tick(_lenFrame/MScore::sampleRate, _lenTick, &sn);
-      return _lenTick;
-      }
-
-//---------------------------------------------------------
-//   lenFrame
-//---------------------------------------------------------
-
-unsigned PosLen::lenFrame() const
-      {
-      if (type() == TType::TICKS)
-            _lenFrame = tempo->tick2time(_lenTick, _lenFrame, &sn) * MScore::sampleRate;
-      return _lenFrame;
-      }
-
-//---------------------------------------------------------
-//   end
-//---------------------------------------------------------
-
-Pos PosLen::end() const
-      {
-      Pos pos(*this);
-      pos.invalidSn();
-      switch(type()) {
-            case TType::FRAMES:
-                  pos.setFrame(pos.frame() + _lenFrame);
-                  break;
-            case TType::TICKS:
-                  pos.setTick(pos.tick() + _lenTick);
-                  break;
-            }
-      return pos;
-      }
-
-//---------------------------------------------------------
-//   setPos
-//---------------------------------------------------------
-
-void PosLen::setPos(const Pos& pos)
-      {
-      switch(pos.type()) {
-            case TType::FRAMES:
-                  setFrame(pos.frame());
-                  break;
-            case TType::TICKS:
-                  setTick(pos.tick());
-                  break;
-            }
-      }
-
-//---------------------------------------------------------
-//   operator==
-//---------------------------------------------------------
-
-bool PosLen::operator==(const PosLen& pl) const
-      {
-      if (type() == TType::TICKS)
-            return (_lenTick == pl._lenTick && Pos::operator==((const Pos&)pl));
-      else
-            return (_lenFrame==pl._lenFrame && Pos::operator==((const Pos&)pl));
       }
 
 //---------------------------------------------------------
@@ -604,4 +439,3 @@ Pos Pos::downSnapped(int raster) const
       }
 
 }
-
