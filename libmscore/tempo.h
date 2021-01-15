@@ -60,14 +60,12 @@ class TempoMap : public std::map<int, TEvent> {
       qreal tempo(int tick) const;
 
       qreal tick2time(int tick, int* sn = 0) const;
-      qreal tick2timeLC(int tick, int* sn) const;
       qreal tick2time(int tick, qreal time, int* sn) const;
       int time2tick(qreal time, int* sn = 0) const;
       int time2tick(qreal time, int tick, int* sn) const;
-      int tempoSN() const { return _tempoSN; }
 
-      void setTempo(int t, qreal);
-      void setPause(int t, qreal);
+      void setTempo(int tick, qreal tempo);
+      void setPause(int tick, qreal pause);
       void delTempo(int tick);
 
       void setRelTempo(qreal val);
