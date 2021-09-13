@@ -460,7 +460,7 @@ void Score::fixTicks()
             }
       // Now done in getNextMeasure(), do we keep?
       if (tempomap()->empty())
-            tempomap()->setTempo(0, _defaultTempo);
+            tempomap()->setTempo(0, TempoMap::defaultTempo);
       }
 
 //---------------------------------------------------------
@@ -3657,7 +3657,7 @@ void Score::resetTempoRange(const Fraction& tick1, const Fraction& tick2)
       const bool zeroInRange = (tick1 <= Fraction(0,1) && tick2 > Fraction(0,1));
       tempomap()->clearRange(tick1.ticks(), tick2.ticks());
       if (zeroInRange)
-            tempomap()->setTempo(0, _defaultTempo);
+            tempomap()->setTempo(0, TempoMap::defaultTempo);
       sigmap()->clearRange(tick1.ticks(), tick2.ticks());
       if (zeroInRange) {
             Measure* m = firstMeasure();

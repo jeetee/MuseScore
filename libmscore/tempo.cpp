@@ -62,7 +62,7 @@ bool TEvent::valid() const
 
 TempoMap::TempoMap()
       {
-      _tempo    = 2.0;        // default fixed tempo in beat per second
+      _tempo    = TempoMap::defaultTempo;
       _tempoSN  = 1;
       _relTempo = 1.0;
       }
@@ -109,7 +109,7 @@ void TempoMap::normalize()
       {
       qreal time  = 0;
       int tick    = 0;
-      qreal tempo = 2.0;
+      qreal tempo = TempoMap::defaultTempo;
       for (auto e = begin(); e != end(); ++e) {
             // entries that represent a pause *only* (not tempo change also)
             // need to be corrected to continue previous tempo
@@ -170,7 +170,7 @@ void TempoMap::clearRange(int tick1, int tick2)
 qreal TempoMap::tempo(int tick) const
       {
       if (empty())
-            return 2.0;
+            return TempoMap::defaultTempo;
       auto i = lower_bound(tick);
       if (i == end()) {
             --i;
@@ -179,7 +179,7 @@ qreal TempoMap::tempo(int tick) const
       if (i->first == tick)
             return i->second.tempo;
       if (i == begin())
-            return 2.0;
+            return TempoMap::defaultTempo;
       --i;
       return i->second.tempo;
       }
@@ -251,7 +251,7 @@ qreal TempoMap::tick2time(int tick, int* sn) const
       {
       qreal time  = 0.0;
       qreal delta = qreal(tick);
-      qreal tempo = 2.0;
+      qreal tempo = TempoMap::defaultTempo;
 
       if (!empty()) {
             int ptick  = 0;

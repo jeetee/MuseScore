@@ -51,6 +51,8 @@ class TempoMap : public std::map<int, TEvent> {
       void del(int tick);
 
    public:
+      constexpr static double defaultTempo = 2.0; //default tempo is equal 120 bpm
+
       TempoMap();
       void clear();
       void clearRange(int tick1, int tick2);

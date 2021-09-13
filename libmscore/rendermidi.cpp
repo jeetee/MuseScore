@@ -1383,7 +1383,7 @@ void renderArpeggio(Chord *chord, QList<NoteEventList> & ell)
             NoteEventList* events = &(ell)[i];
             events->clear();
 
-            auto tempoRatio = chord->score()->tempomap()->tempo(chord->tick().ticks()) / Score::defaultTempo();
+            auto tempoRatio = chord->score()->tempomap()->tempo(chord->tick().ticks()) / TempoMap::defaultTempo;
             int ot = (l * j * 1000) / chord->upNote()->playTicks() *
                tempoRatio * chord->arpeggio()->Stretch();
 

@@ -905,7 +905,7 @@ MasterScore* MuseScore::getNewFile()
             delete nvb;
             }
 
-      double tempo = Score::defaultTempo() * 60; // quarter notes per minute
+      double tempo = TempoMap::defaultTempo * 60; // quarter notes per minute
       if (newWizard->tempo(&tempo)) {
 
             Fraction ts = newWizard->timesig();
