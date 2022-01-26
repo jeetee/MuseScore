@@ -165,7 +165,12 @@ void NotationConfiguration::init()
     settings()->setDefaultValue(SELECTION_PROXIMITY, Val(2));
     settings()->setDefaultValue(IS_MIDI_INPUT_ENABLED, Val(false));
     settings()->setDefaultValue(IS_AUTOMATICALLY_PAN_ENABLED, Val(true));
-    settings()->setDefaultValue(IS_PLAY_REPEATS_ENABLED, Val(false));
+
+    settings()->setDefaultValue(IS_PLAY_REPEATS_ENABLED, Val(true));
+    settings()->valueChanged(IS_PLAY_REPEATS_ENABLED).onReceive(nullptr, [this](const Val&) {
+        m_isPlayRepeatsEnabledChanged.notify();
+    });
+
     settings()->setDefaultValue(IS_METRONOME_ENABLED, Val(false));
     settings()->setDefaultValue(IS_COUNT_IN_ENABLED, Val(false));
 
@@ -505,6 +510,11 @@ void NotationConfiguration::setIsPlayRepeatsEnabled(bool enabled)
 {
     settings()->setSharedValue(IS_PLAY_REPEATS_ENABLED, Val(enabled));
     Ms::MScore::playRepeats = enabled;
+}
+
+async::Notification NotationConfiguration::isPlayRepeatsEnabledChanged() const
+{
+    return m_isPlayRepeatsEnabledChanged;
 }
 
 bool NotationConfiguration::isMetronomeEnabled() const

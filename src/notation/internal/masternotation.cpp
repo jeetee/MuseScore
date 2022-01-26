@@ -64,6 +64,12 @@ MasterNotation::MasterNotation()
     undoStack()->stackChanged().onNotify(this, [this]() {
         notifyAboutNeedSaveChanged();
     });
+
+    configuration()->isPlayRepeatsEnabledChanged().onNotify(this, [this](){
+        if (masterScore()) {
+            masterScore()->setExpandRepeats(configuration()->isPlayRepeatsEnabled());
+        }
+    });
 }
 
 MasterNotation::~MasterNotation()

@@ -116,6 +116,7 @@ public:
 
     bool isPlayRepeatsEnabled() const override;
     void setIsPlayRepeatsEnabled(bool enabled) override;
+    async::Notification isPlayRepeatsEnabledChanged() const override;
 
     bool isMetronomeEnabled() const override;
     void setIsMetronomeEnabled(bool enabled) override;
@@ -190,6 +191,7 @@ private:
 
     async::Notification m_backgroundChanged;
     async::Notification m_foregroundChanged;
+    async::Notification m_isPlayRepeatsEnabledChanged;
     async::Channel<int> m_currentZoomChanged;
     async::Channel<framework::Orientation> m_canvasOrientationChanged;
     async::Channel<io::path> m_userStylesPathChanged;
