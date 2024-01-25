@@ -26,10 +26,14 @@
 #include <QStringList>
 #include <optional>
 
-#include "logger.h"
-
 #include "global/iapplication.h"
 #include "io/path.h"
+#include "logger.h"
+
+#if (defined (_MSCVER) || defined (_MSC_VER))
+#include <vector>
+#include <QByteArray>
+#endif
 
 class QCoreApplication;
 
@@ -39,7 +43,8 @@ class CommandLineParser
     //! NOTE: This parser is created at the earliest stage of the application initialization
     //! You should not inject anything into it
 public:
-    CommandLineParser() = default;
+    CommandLineParser(int argc, char** argv);
+    CommandLineParser(const QStringList& args);
 
     struct Options {
         struct {
@@ -153,11 +158,13 @@ public:
         int failCode = 0;
     };
 
-    void init();
-    void parse(int argc, char** argv);
-    void processBuiltinArgs(const QCoreApplication& app);
+    [[nodiscard]] int argumentCount() const;
+    [[nodiscard]] char** argumentValues() const;
+    [[nodiscard]] QStringList argumentsAsQStringList() const;
 
-    framework::IApplication::RunMode runMode() const;
+    void processApplication(const QCoreApplication& app);
+
+    [[nodiscard]] framework::IApplication::RunMode runMode() const;
 
     // Options
     const Options& options() const;
@@ -169,6 +176,18 @@ public:
     AudioPluginRegistration audioPluginRegistration() const;
 
 private:
+    // Resulting pre-processed arguments with correct UTF-8 encoding
+    int argsCounter;
+    char** argsValues;
+#if (defined (_MSCVER) || defined (_MSC_VER))
+    // On MSVC under Windows, we need to manually retrieve the command-line arguments and convert them
+    // from UTF-16 to UTF-8 to prevent data loss.
+    // This is a place to store the converted arguments for further processing.
+    std::vector<QByteArray> argvUTF8Q; // Storing the actual data
+    std::vector<char*> argvUTF8; // Storing the raw pointer to it to be argv compatible
+#endif
+    QStringList args; // Internal list of the args used for actual parsing
+
     void printLongVersion() const;
 
     QCommandLineParser m_parser;
@@ -179,6 +198,10 @@ private:
     Diagnostic m_diagnostic;
     Autobot m_autobot;
     AudioPluginRegistration m_audioPluginRegistration;
+
+    void ensureUTF8Encoding(int argc, char** argv);
+    void initOptions();
+    void parse();
 };
 }
 

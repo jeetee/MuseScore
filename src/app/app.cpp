@@ -41,6 +41,188 @@
 
 #include "log.h"
 
+// Modules
+#ifdef MUE_BUILD_ACCESSIBILITY_MODULE
+#include "framework/accessibility/accessibilitymodule.h"
+#else
+#include "stubs/framework/accessibility/accessibilitystubmodule.h"
+#endif
+
+#include "framework/actions/actionsmodule.h"
+
+#ifdef MUE_BUILD_AUDIO_MODULE
+#include "framework/audio/audiomodule.h"
+#else
+#include "stubs/framework/audio/audiostubmodule.h"
+#endif
+
+#include "framework/draw/drawmodule.h"
+#include "framework/fonts/fontsmodule.h"
+
+#ifdef MUE_BUILD_MIDI_MODULE
+#include "framework/midi/midimodule.h"
+#else
+#include "stubs/framework/midi/midistubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_MIDI_MODULE
+#include "framework/mpe/mpemodule.h"
+#else
+#include "stubs/framework/mpe/mpestubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_MUSESAMPLER_MODULE
+#include "framework/musesampler/musesamplermodule.h"
+#endif
+
+#ifdef MUE_BUILD_NETWORK_MODULE
+#include "framework/network/networkmodule.h"
+#else
+#include "stubs/framework/network/networkstubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_SHORTCUTS_MODULE
+#include "framework/shortcuts/shortcutsmodule.h"
+#else
+#include "stubs/framework/shortcuts/shortcutsstubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_UI_MODULE
+#include "framework/ui/uimodule.h"
+#include "framework/uicomponents/uicomponentsmodule.h"
+#endif
+
+#ifdef MUE_BUILD_VST_MODULE
+#include "framework/vst/vstmodule.h"
+#else
+#include "stubs/framework/vst/vststubmodule.h"
+#endif
+
+// Modules
+#include "appshell/appshellmodule.h"
+
+#ifdef MUE_BUILD_AUTOBOT_MODULE
+#include "autobot/autobotmodule.h"
+#endif
+
+#ifdef MUE_BUILD_BRAILLE_MODULE
+#include "braille/braillemodule.h"
+#else
+#include "stubs/braille/braillestubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_CLOUD_MODULE
+#include "cloud/cloudmodule.h"
+#else
+#include "stubs/cloud/cloudstubmodule.h"
+#endif
+
+#include "commonscene/commonscenemodule.h"
+#include "context/contextmodule.h"
+
+#ifdef MUE_BUILD_CONVERTER_MODULE
+#include "converter/convertermodule.h"
+#endif
+
+#include "diagnostics/diagnosticsmodule.h"
+#include "engraving/engravingmodule.h"
+
+#ifdef MUE_BUILD_IMPORTEXPORT_MODULE
+#include "importexport/musicxml/musicxmlmodule.h"
+#include "importexport/bb/bbmodule.h"
+#include "importexport/bww/bwwmodule.h"
+#include "importexport/capella/capellamodule.h"
+#include "importexport/guitarpro/guitarpromodule.h"
+#include "importexport/midi/midimodule.h"
+#include "importexport/musedata/musedatamodule.h"
+#include "importexport/ove/ovemodule.h"
+#include "importexport/audioexport/audioexportmodule.h"
+#include "importexport/imagesexport/imagesexportmodule.h"
+#include "importexport/mei/meimodule.h"
+#ifdef MUE_BUILD_VIDEOEXPORT_MODULE
+#include "importexport/videoexport/videoexportmodule.h"
+#endif
+#else
+#ifdef MUE_BUILD_IMAGESEXPORT_MODULE
+#include "importexport/imagesexport/imagesexportmodule.h"
+#endif
+#endif
+
+#include "inspector/inspectormodule.h"
+
+#ifdef MUE_BUILD_INSTRUMENTSSCENE_MODULE
+#include "instrumentsscene/instrumentsscenemodule.h"
+#else
+#include "stubs/instrumentsscene/instrumentsscenestubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_LANGUAGES_MODULE
+#include "languages/languagesmodule.h"
+#else
+#include "stubs/languages/languagesstubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_LEARN_MODULE
+#include "learn/learnmodule.h"
+#else
+#include "stubs/learn/learnmodule.h"
+#endif
+
+#ifdef MUE_BUILD_MULTIINSTANCES_MODULE
+#include "multiinstances/multiinstancesmodule.h"
+#else
+#include "stubs/multiinstances/multiinstancesstubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_NOTATION_MODULE
+#include "notation/notationmodule.h"
+#else
+#include "stubs/notation/notationstubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_PALETTE_MODULE
+#include "palette/palettemodule.h"
+#else
+#include "stubs/palette/palettestubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_PLAYBACK_MODULE
+#include "playback/playbackmodule.h"
+#else
+#include "stubs/playback/playbackstubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_PLUGINS_MODULE
+#include "plugins/pluginsmodule.h"
+#else
+#include "stubs/plugins/pluginsstubmodule.h"
+#endif
+
+#include "print/printmodule.h"
+
+#ifdef MUE_BUILD_PROJECT_MODULE
+#include "project/projectmodule.h"
+#else
+#include "stubs/project/projectstubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_UPDATE_MODULE
+#include "update/updatemodule.h"
+#else
+#include "stubs/update/updatestubmodule.h"
+#endif
+
+#ifdef MUE_BUILD_WORKSPACE_MODULE
+#include "workspace/workspacemodule.h"
+#else
+#include "stubs/workspace/workspacestubmodule.h"
+#endif
+
+#ifdef Q_OS_WASM
+#include "wasmtest/wasmtestmodule.h"
+#endif
+
+
 using namespace mu::app;
 using namespace mu::appshell;
 
@@ -49,6 +231,7 @@ static mu::framework::GlobalModule globalModule;
 
 App::App()
 {
+    addModules();
 }
 
 void App::addModule(modularity::IModuleSetup* module)
@@ -56,7 +239,93 @@ void App::addModule(modularity::IModuleSetup* module)
     m_modules.push_back(module);
 }
 
-int App::run(int argc, char** argv)
+void App::addModules()
+{
+    //! NOTE `diagnostics` must be first, because it installs the crash handler.
+    //! For other modules, the order is (an should be) unimportant.
+    addModule(new mu::diagnostics::DiagnosticsModule());
+
+    // framework
+    addModule(new mu::accessibility::AccessibilityModule());
+    addModule(new mu::actions::ActionsModule());
+    addModule(new mu::audio::AudioModule());
+    addModule(new mu::draw::DrawModule());
+    addModule(new mu::fonts::FontsModule());
+    addModule(new mu::midi::MidiModule());
+    addModule(new mu::mpe::MpeModule());
+#ifdef MUE_BUILD_MUSESAMPLER_MODULE
+    addModule(new mu::musesampler::MuseSamplerModule());
+#endif
+    addModule(new mu::network::NetworkModule());
+    addModule(new mu::shortcuts::ShortcutsModule());
+#ifdef MUE_BUILD_UI_MODULE
+    addModule(new mu::ui::UiModule());
+    addModule(new mu::uicomponents::UiComponentsModule());
+#endif
+    addModule(new mu::vst::VSTModule());
+
+// modules
+#ifdef MUE_BUILD_APPSHELL_MODULE
+    addModule(new mu::appshell::AppShellModule());
+#endif
+
+#ifdef MUE_BUILD_AUTOBOT_MODULE
+    addModule(new mu::autobot::AutobotModule());
+#endif
+
+    addModule(new mu::braille::BrailleModule());
+
+    addModule(new mu::cloud::CloudModule());
+    addModule(new mu::commonscene::CommonSceneModule());
+    addModule(new mu::context::ContextModule());
+
+#ifdef MUE_BUILD_CONVERTER_MODULE
+    addModule(new mu::converter::ConverterModule());
+#endif
+
+    addModule(new mu::engraving::EngravingModule());
+
+#ifdef MUE_BUILD_IMPORTEXPORT_MODULE
+    addModule(new mu::iex::bb::BBModule());
+    addModule(new mu::iex::bww::BwwModule());
+    addModule(new mu::iex::musicxml::MusicXmlModule());
+    addModule(new mu::iex::capella::CapellaModule());
+    addModule(new mu::iex::guitarpro::GuitarProModule());
+    addModule(new mu::iex::midi::MidiModule());
+    addModule(new mu::iex::musedata::MuseDataModule());
+    addModule(new mu::iex::ove::OveModule());
+    addModule(new mu::iex::audioexport::AudioExportModule());
+    addModule(new mu::iex::imagesexport::ImagesExportModule());
+    addModule(new mu::iex::mei::MeiModule());
+#ifdef MUE_BUILD_VIDEOEXPORT_MODULE
+    addModule(new mu::iex::videoexport::VideoExportModule());
+#endif
+#else
+#ifdef MUE_BUILD_IMAGESEXPORT_MODULE
+    addModule(new mu::iex::imagesexport::ImagesExportModule());
+#endif
+#endif
+
+    addModule(new mu::inspector::InspectorModule());
+    addModule(new mu::instrumentsscene::InstrumentsSceneModule());
+    addModule(new mu::languages::LanguagesModule());
+    addModule(new mu::learn::LearnModule());
+    addModule(new mu::mi::MultiInstancesModule());
+    addModule(new mu::notation::NotationModule());
+    addModule(new mu::palette::PaletteModule());
+    addModule(new mu::playback::PlaybackModule());
+    addModule(new mu::plugins::PluginsModule());
+    addModule(new mu::print::PrintModule());
+    addModule(new mu::project::ProjectModule());
+    addModule(new mu::update::UpdateModule());
+    addModule(new mu::workspace::WorkspaceModule());
+
+#ifdef Q_OS_WASM
+    addModule(new mu::wasmtest::WasmTestModule());
+#endif
+}
+
+int App::run(CommandLineParser& commandLineParser)
 {
     // ====================================================
     // Setup global Qt application variables
@@ -103,17 +372,13 @@ int App::run(int argc, char** argv)
     // ====================================================
     // Parse command line options
     // ====================================================
-    CommandLineParser commandLineParser;
-    commandLineParser.init();
-    commandLineParser.parse(argc, argv);
-
     framework::IApplication::RunMode runMode = commandLineParser.runMode();
     QCoreApplication* app = nullptr;
-
+    int argc = commandLineParser.argumentCount();
     if (runMode == framework::IApplication::RunMode::AudioPluginRegistration) {
-        app = new QCoreApplication(argc, argv);
+        app = new QCoreApplication(argc, commandLineParser.argumentValues());
     } else {
-        app = new QApplication(argc, argv);
+        app = new QApplication(argc, commandLineParser.argumentValues());
     }
 
     QCoreApplication::setApplicationName(appName);
@@ -126,7 +391,7 @@ int App::run(int argc, char** argv)
     QGuiApplication::setDesktopFileName("org.musescore.MuseScore" MUSESCORE_INSTALL_SUFFIX ".desktop");
 #endif
 
-    commandLineParser.processBuiltinArgs(*app);
+    commandLineParser.processApplication(*app);
 
     // ====================================================
     // Setup modules: Resources, Exports, Imports, UiTypes

@@ -26,17 +26,50 @@
 #include "global/io/dir.h"
 #include "global/muversion.h"
 
-#include "log.h"
+#if (defined (_MSCVER) || defined (_MSC_VER))
+#include <windows.h>
+#include <shellapi.h>
+
+#include <algorithm>
+#include <vector>
+
+#include <QString>
+#endif
 
 using namespace mu::app;
 using namespace mu::framework;
 
-static QStringList prepareArguments(int argc, char** argv)
+CommandLineParser::CommandLineParser(int argc, char** argv)
 {
-    QStringList args;
+    ensureUTF8Encoding(argc, argv);
+    initOptions();
+    args = argumentsAsQStringList();
+    parse();
+}
 
-    for (int i = 0; i < argc; ++i) {
-        QString arg = QString::fromLocal8Bit(argv[i]);
+CommandLineParser::CommandLineParser(const QStringList& args)
+{
+    initOptions();
+    this->args = args;
+    parse();
+}
+
+[[nodiscard]] int CommandLineParser::argumentCount() const
+{
+    return argsCounter;
+}
+
+[[nodiscard]] char** CommandLineParser::argumentValues() const
+{
+    return argsValues;
+}
+
+[[nodiscard]] QStringList CommandLineParser::argumentsAsQStringList() const
+{
+    QStringList argumentList;
+
+    for (int i = 0; i < argsCounter; ++i) {
+        QString arg = QString::fromLocal8Bit(argsValues[i]);
 
 #ifndef NDEBUG
         if (arg.startsWith("-qmljsdebugger")) {
@@ -44,10 +77,38 @@ static QStringList prepareArguments(int argc, char** argv)
         }
 #endif
 
-        args << arg;
+        argumentList << arg;
     }
 
-    return args;
+    return argumentList;
+}
+
+void CommandLineParser::ensureUTF8Encoding(int argc, char** argv)
+{
+#if (defined (_MSCVER) || defined (_MSC_VER))
+    // Prevent data loss if there are any characters that wouldn't fit in the local ANSI code page by manually
+    // retrieving the command-line arguments and converting them from UTF-16 to UTF-8.
+    LPWSTR* argvUTF16 = CommandLineToArgvW(GetCommandLineW(), &argc);
+    Q_UNUSED(argv);
+
+    std::for_each(argvUTF16, argvUTF16 + argc, [this](const auto& arg) {
+        argvUTF8Q.emplace_back(QString::fromUtf16(reinterpret_cast<const char16_t*>(arg), -1).toUtf8());
+    });
+
+    LocalFree(argvUTF16);
+
+    // Now recreate a char** reference to be used as argv
+    for (auto& arg : argvUTF8Q) {
+        argvUTF8.push_back(arg.data());
+    }
+
+    this->argsCounter = argc;
+    this->argsValues = argvUTF8.data();
+#else
+    // No convertion needed for other platforms, we can just use the original arguments directly.
+    this->argsCounter = argc;
+    this->argsValues = argv;
+#endif
 }
 
 template<typename ... Args>
@@ -58,7 +119,7 @@ QCommandLineOption internalCommandLineOption(Args&& ... args)
     return option;
 }
 
-void CommandLineParser::init()
+void CommandLineParser::initOptions()
 {
     // Common
     m_parser.addHelpOption(); // -?, -h, --help
@@ -156,9 +217,8 @@ void CommandLineParser::init()
                                                  "Display name to be shown in splash screen for the score that is being opened", "name"));
 }
 
-void CommandLineParser::parse(int argc, char** argv)
+void CommandLineParser::parse()
 {
-    QStringList args = prepareArguments(argc, argv);
     m_parser.parse(args);
 
     auto floatValue = [this](const QString& name) -> std::optional<float> {
@@ -193,7 +253,8 @@ void CommandLineParser::parse(int argc, char** argv)
     };
 
     QStringList scorefiles;
-    for (const QString& arg : m_parser.positionalArguments()) {
+    const QStringList& posArgs = m_parser.positionalArguments();
+    for (const QString& arg : posArgs) {
         scorefiles << fromUserInputPath(arg);
     }
 
@@ -482,7 +543,7 @@ void CommandLineParser::parse(int argc, char** argv)
     }
 }
 
-void CommandLineParser::processBuiltinArgs(const QCoreApplication& app)
+void CommandLineParser::processApplication(const QCoreApplication& app)
 {
     //! NOTE: some options require an instance of QCoreApplication
     m_parser.process(app);

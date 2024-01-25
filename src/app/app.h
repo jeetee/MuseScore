@@ -72,9 +72,11 @@ class App
 public:
     App();
 
-    void addModule(modularity::IModuleSetup* module);
+    int run(CommandLineParser& commandLineParser);
 
-    int run(int argc, char** argv);
+protected:
+    void addModule(modularity::IModuleSetup* module);
+    void addModules();
 
 private:
     void applyCommandLineOptions(const CommandLineParser::Options& options, framework::IApplication::RunMode runMode);
