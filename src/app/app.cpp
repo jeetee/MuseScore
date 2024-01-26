@@ -30,11 +30,15 @@
 #include <QThreadPool>
 #endif
 
+#ifdef MUE_BUILD_APPSHELL_MODULE
 #include "appshell/view/internal/splashscreen/splashscreen.h"
 #include "appshell/view/dockwindow/docksetup.h"
+#endif
 
 #include "modularity/ioc.h"
+#ifdef MUE_BUILD_UI_MODULE
 #include "ui/internal/uiengine.h"
+#endif
 #include "muversion.h"
 
 #include "framework/global/globalmodule.h"
@@ -65,7 +69,7 @@
 #include "stubs/framework/midi/midistubmodule.h"
 #endif
 
-#ifdef MUE_BUILD_MIDI_MODULE
+#ifdef MUE_BUILD_MPE_MODULE
 #include "framework/mpe/mpemodule.h"
 #else
 #include "stubs/framework/mpe/mpestubmodule.h"
@@ -99,7 +103,9 @@
 #endif
 
 // Modules
+#ifdef MUE_BUILD_APPSHELL_MODULE
 #include "appshell/appshellmodule.h"
+#endif
 
 #ifdef MUE_BUILD_AUTOBOT_MODULE
 #include "autobot/autobotmodule.h"
@@ -124,7 +130,9 @@
 #include "converter/convertermodule.h"
 #endif
 
+#ifdef MUE_BUILD_DIAGNOSTICS_MODULE
 #include "diagnostics/diagnosticsmodule.h"
+#endif
 #include "engraving/engravingmodule.h"
 
 #ifdef MUE_BUILD_IMPORTEXPORT_MODULE
@@ -148,7 +156,9 @@
 #endif
 #endif
 
+#ifdef MUE_BUILD_INSPECTOR_MODULE
 #include "inspector/inspectormodule.h"
+#endif
 
 #ifdef MUE_BUILD_INSTRUMENTSSCENE_MODULE
 #include "instrumentsscene/instrumentsscenemodule.h"
@@ -243,7 +253,9 @@ void App::addModules()
 {
     //! NOTE `diagnostics` must be first, because it installs the crash handler.
     //! For other modules, the order is (an should be) unimportant.
+#ifdef MUE_BUILD_DIAGNOSTICS_MODULE
     addModule(new mu::diagnostics::DiagnosticsModule());
+#endif
 
     // framework
     addModule(new mu::accessibility::AccessibilityModule());
@@ -306,7 +318,9 @@ void App::addModules()
 #endif
 #endif
 
+#ifdef MUE_BUILD_INSPECTOR_MODULE
     addModule(new mu::inspector::InspectorModule());
+#endif
     addModule(new mu::instrumentsscene::InstrumentsSceneModule());
     addModule(new mu::languages::LanguagesModule());
     addModule(new mu::learn::LearnModule());
@@ -720,6 +734,9 @@ void App::applyCommandLineOptions(const CommandLineParser::Options& options, fra
 int App::processConverter(const CommandLineParser::ConverterTask& task)
 {
     Ret ret = make_ret(Ret::Code::Ok);
+#ifndef MUE_BUILD_CONVERTER_MODULE
+    ret = make_ret(Ret::Code::NotSupported);
+#else
     io::path_t stylePath = task.params[CommandLineParser::ParamKey::StylePath].toString();
     bool forceMode = task.params[CommandLineParser::ParamKey::ForceMode].toBool();
     String soundProfile = task.params[CommandLineParser::ParamKey::SoundProfile].toString();
@@ -763,8 +780,8 @@ int App::processConverter(const CommandLineParser::ConverterTask& task)
         std::string scoreSource = task.params[CommandLineParser::ParamKey::ScoreSource].toString().toStdString();
         ret = converter()->updateSource(task.inputFile, scoreSource, forceMode);
     } break;
-    }
-
+    }    
+#endif
     if (!ret) {
         LOGE() << "failed convert, error: " << ret.toString();
     }
@@ -774,8 +791,11 @@ int App::processConverter(const CommandLineParser::ConverterTask& task)
 
 int App::processDiagnostic(const CommandLineParser::Diagnostic& task)
 {
+#ifdef MUE_BUILD_DIAGNOSTICS_MODULE
     if (!diagnosticDrawProvider()) {
+#endif
         return make_ret(Ret::Code::NotSupported);
+#ifdef MUE_BUILD_DIAGNOSTICS_MODULE
     }
 
     Ret ret = make_ret(Ret::Code::Ok);
@@ -825,6 +845,7 @@ int App::processDiagnostic(const CommandLineParser::Diagnostic& task)
     }
 
     return ret.code();
+#endif
 }
 
 int App::processAudioPluginRegistration(const CommandLineParser::AudioPluginRegistration& task)
@@ -846,6 +867,7 @@ int App::processAudioPluginRegistration(const CommandLineParser::AudioPluginRegi
 
 void App::processAutobot(const CommandLineParser::Autobot& task)
 {
+#ifdef MUE_BUILD_AUTOBOT_MODULE
     using namespace mu::autobot;
     async::Channel<StepInfo, Ret> stepCh = autobot()->stepStatusChanged();
     stepCh.onReceive(nullptr, [](const StepInfo& step, const Ret& ret){
@@ -872,4 +894,5 @@ void App::processAutobot(const CommandLineParser::Autobot& task)
     opt.funcArgs = task.testCaseFuncArgs.toStdString();
 
     autobot()->execScript(task.testCaseNameOrFile, opt);
+#endif
 }

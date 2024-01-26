@@ -194,18 +194,22 @@ void CommandLineParser::initOptions()
     m_parser.addOption(QCommandLineOption("migration", "Whether to do migration with given mode, `full` - full migration", "mode"));
 
     // Diagnostic
+#ifdef MUE_BUILD_DIAGNOSTICS_MODULE
     m_parser.addOption(QCommandLineOption("diagnostic-output", "Diagnostic output", "output"));
     m_parser.addOption(QCommandLineOption("diagnostic-gen-drawdata", "Generate engraving draw data", "scores-dir"));
     m_parser.addOption(QCommandLineOption("diagnostic-com-drawdata", "Compare engraving draw data"));
     m_parser.addOption(QCommandLineOption("diagnostic-drawdata-to-png", "Convert draw data to png", "file"));
     m_parser.addOption(QCommandLineOption("diagnostic-drawdiff-to-png", "Convert draw diff to png"));
+#endif
 
     // Autobot
+#ifdef MUE_BUILD_AUTOBOT_MODULE
     m_parser.addOption(QCommandLineOption("test-case", "Run test case by name or file", "nameOrFile"));
     m_parser.addOption(QCommandLineOption("test-case-context", "Set test case context by name or file", "nameOrFile"));
     m_parser.addOption(QCommandLineOption("test-case-context-value", "Set test case context value", "value"));
     m_parser.addOption(QCommandLineOption("test-case-func", "Call test case function", "name"));
     m_parser.addOption(QCommandLineOption("test-case-func-args", "Call test case function args", "args"));
+#endif
 
     // Audio plugins
     m_parser.addOption(QCommandLineOption("register-audio-plugin",
